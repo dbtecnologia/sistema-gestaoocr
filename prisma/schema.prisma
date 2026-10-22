@@ -1,8 +1,103 @@
-datasource db { provider = "postgresql" url = env("DATABASE_URL") }
-generator client { provider = "prisma-client-js" }
-enum StatusEncarte { PENDENTE PROCESSANDO AGUARDANDO_VALIDACAO PUBLICADO ERRO }
-enum TipoPromocao { NORMAL APP_CLUBE ATACADO_QUANTIDADE CARTAO_LOJA }
-model Concorrente { id String @id @default(uuid()) nome String rede String? cidade String estado String logoUrl String? instagramHandle String? @unique autoScrapeEnabled Boolean @default(true) frequenciaScrape String @default("DIARIO") ultimoScrapeAt DateTime? encartes Encarte[] createdAt DateTime @default(now()) updatedAt DateTime @updatedAt }
-model ProdutoCatalogo { id String @id @default(uuid()) nomePadrao String marca String? categoria String codigoBarras String? @unique precoAtualProprio Decimal? @db.Decimal(10,2) itensEncarte ItemEncarte[] createdAt DateTime @default(now()) updatedAt DateTime @updatedAt }
-model Encarte { id String @id @default(uuid()) concorrenteId String concorrente Concorrente @relation(fields:[concorrenteId],references:[id]) imagemUrl String imageHash String? @unique origem String @default("INSTAGRAM_AUTO") postIdInstagram String? dataInicio DateTime? dataFim DateTime? status StatusEncarte @default(PENDENTE) itens ItemEncarte[] createdAt DateTime @default(now()) updatedAt DateTime @updatedAt }
-model ItemEncarte { id String @id @default(uuid()) encarteId String encarte Encarte @relation(fields:[encarteId],references:[id],onDelete:Cascade) produtoCatalogoId String? produtoCatalogo ProdutoCatalogo? @relation(fields:[produtoCatalogoId],references:[id]) nomeExtraido String marcaExtraida String? embalagemUnidade String categoria String precoRegular Decimal? @db.Decimal(10,2) precoPromocional Decimal @db.Decimal(10,2) tipoPromocao TipoPromocao @default(NORMAL) condicaoEspecial String? confiancaLeitura String @default("ALTA") validadoManualmente Boolean @default(false) createdAt DateTime @default(now()) }
+datasource db {
+  provider = "postgresql"
+  url = env("DATABASE_URL")
+}
+generator client {
+  provider = "prisma-client-js"
+}
+enum StatusEncarte {
+  PENDENTE
+  PROCESSANDO
+  AGUARDANDO_VALIDACAO
+  PUBLICADO
+  ERRO
+}
+enum TipoPromocao {
+  NORMAL
+  APP_CLUBE
+  ATACADO_QUANTIDADE
+  CARTAO_LOJA
+}
+model Concorrente {
+  id String @id @default(uuid())
+  ownerId String
+  nome String
+  rede String?
+  cidade String
+  estado String
+  logoUrl String?
+  instagramHandle String?
+  autoScrapeEnabled Boolean @default(true)
+  frequenciaScrape String @default("DIARIO")
+  ultimoScrapeAt DateTime?
+  encartes Encarte[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  @@unique([id, ownerId])
+  @@unique([ownerId, instagramHandle])
+  @@index([ownerId, createdAt])
+}
+model ProdutoCatalogo {
+  id String @id @default(uuid())
+  ownerId String
+  nomePadrao String
+  marca String?
+  categoria String
+  embalagemUnidade String @default("un")
+  codigoBarras String?
+  precoAtualProprio Decimal? @db.Decimal(10, 2)
+  itensEncarte ItemEncarte[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  @@unique([id, ownerId])
+  @@unique([ownerId, codigoBarras])
+  @@index([ownerId, categoria])
+}
+model Encarte {
+  id String @id @default(uuid())
+  ownerId String
+  concorrenteId String
+  concorrente Concorrente @relation(fields: [concorrenteId, ownerId], references: [id, ownerId], onDelete: Restrict)
+  imagemUrl String
+  imageHash String?
+  origem String @default("UPLOAD_MANUAL")
+  postIdInstagram String?
+  dataInicio DateTime?
+  dataFim DateTime?
+  status StatusEncarte @default(PENDENTE)
+  erro String?
+  itens ItemEncarte[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  @@unique([id, ownerId])
+  @@unique([ownerId, imageHash])
+  @@index([ownerId, status, createdAt])
+  @@index([concorrenteId, ownerId])
+}
+model ItemEncarte {
+  id String @id @default(uuid())
+  ownerId String
+  encarteId String
+  encarte Encarte @relation(fields: [encarteId, ownerId], references: [id, ownerId], onDelete: Cascade)
+  produtoCatalogoId String?
+  produtoCatalogo ProdutoCatalogo? @relation(fields: [produtoCatalogoId, ownerId], references: [id, ownerId], onDelete: Restrict)
+  nomeExtraido String
+  marcaExtraida String?
+  embalagemUnidade String
+  categoria String
+  precoRegular Decimal? @db.Decimal(10, 2)
+  precoPromocional Decimal @db.Decimal(10, 2)
+  tipoPromocao TipoPromocao @default(NORMAL)
+  condicaoEspecial String?
+  confiancaLeitura String @default("ALTA")
+  validadoManualmente Boolean @default(false)
+  createdAt DateTime @default(now())
+  @@index([ownerId, produtoCatalogoId, createdAt])
+  @@index([encarteId, ownerId])
+}
+model Configuracao {
+  ownerId String @id
+  segredos String @default("")
+  geminiModel String @default("gemini-flash-latest")
+  updatedAt DateTime @updatedAt
+}

@@ -2,9 +2,38 @@
   "name": "mercado-radar",
   "version": "1.0.0",
   "private": true,
-  "scripts": { "dev": "next dev", "build": "next build", "start": "next start", "lint": "next lint", "prisma:generate": "prisma generate", "prisma:migrate": "prisma migrate dev" },
-  "dependencies": {
-    "@google/genai": "latest", "@prisma/client": "latest", "@tanstack/react-table": "latest", "class-variance-authority": "latest", "clsx": "latest", "lucide-react": "latest", "next": "14.2.15", "react": "18.3.1", "react-dom": "18.3.1", "recharts": "latest", "tailwind-merge": "latest", "zod": "latest"
+  "scripts": {
+    "dev": "next dev",
+    "build": "prisma generate && next build",
+    "start": "next start",
+    "lint": "next lint",
+    "prisma:generate": "prisma generate",
+    "prisma:migrate": "prisma migrate dev"
   },
-  "devDependencies": { "@types/node": "latest", "@types/react": "latest", "@types/react-dom": "latest", "autoprefixer": "10.4.20", "postcss": "8.4.49", "prisma": "latest", "tailwindcss": "3.4.17", "typescript": "latest" }
+  "dependencies": {
+    "@google/genai": "2.30.0",
+    "@prisma/client": "6.19.3",
+    "@tanstack/react-table": "9.3.1",
+    "class-variance-authority": "0.7.1",
+    "clsx": "2.1.1",
+    "lucide-react": "1.61.0",
+    "next": "14.2.35",
+    "react": "18.3.1",
+    "react-dom": "18.3.1",
+    "recharts": "3.10.1",
+    "tailwind-merge": "3.7.0",
+    "zod": "4.6.7",
+    "exceljs": "4.4.0",
+    "jspdf": "4.2.1"
+  },
+  "devDependencies": {
+    "@types/node": "^20.17.24",
+    "@types/react": "^18.3.18",
+    "@types/react-dom": "^18.3.5",
+    "autoprefixer": "latest",
+    "postcss": "latest",
+    "prisma": "6.19.3",
+    "tailwindcss": "3.4.17",
+    "typescript": "5.6.3"
+  }
 }
