@@ -1,0 +1,1 @@
+import {NextResponse} from 'next/server';export async function POST(){return NextResponse.json({ok:true,message:'Varredura enfileirada. Configure o adaptador Apify/Playwright em lib/scraper.ts.'})}
