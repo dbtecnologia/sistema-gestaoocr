@@ -1,3 +1,4 @@
+Attempting to perform the InitializeDefaultDrives operation on the 'FileSystem' provider failed.
 const SUPABASE_URL = 'https://gozhlkodktqvgojlrbxt.supabase.co';
 const SUPABASE_PUBLISHABLE_KEY = 'sb_publishable_Oc4AnG5G3kPxdwXK4zrILw_1LbJG3bo';
 const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY);
@@ -18,7 +19,9 @@ let authMode = 'signin';
 function effectiveStatus(item) { return item.status === 'paid' ? 'paid' : parseDate(item.dueDate) < today ? 'overdue' : 'pending'; }
 function statusLabel(status) { return status === 'paid' ? 'Pago' : status === 'overdue' ? 'Vencendo' : 'Pendente'; }
 function escapeHtml(value) { return String(value).replace(/[&<>'"]/g, character => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[character])); }
-function fromRow(row) { return { id: row.id, name: row.name, dueDate: row.due_date, payDate: row.payment_date || '', reminder: row.reminder_days, status: row.status }; }
+function fromRow(row) { return { id: row.id, name: row.name, dueDate: row.due_date, payDate: row.payment_date || '', reminder: row.reminder_days, status: row.status, whatsapp1: row.whatsapp_1 || '', whatsapp2: row.whatsapp_2 || '', whatsapp3: row.whatsapp_3 || '' }; }
+function normalizeWhatsApp(value) { const digits = String(value || '').replace(/\D/g, ''); if (digits.length === 10 || digits.length === 11) return `55${digits}`; return digits; }
+function formatWhatsApps(item) { return [item.whatsapp1, item.whatsapp2, item.whatsapp3].filter(Boolean).map(value => `+${value}`).join(', '); }
 function showToast(message) { const element = $('toast'); element.textContent = message; element.classList.add('show'); clearTimeout(showToast.timer); showToast.timer = setTimeout(() => element.classList.remove('show'), 2800); }
 function setAuthMessage(message, success = false) { const element = $('authMessage'); element.textContent = message; element.style.color = success ? 'var(--green)' : 'var(--coral)'; }
 
@@ -66,7 +69,7 @@ function openDayModal(dateISO) {
   $('dayModalTitle').textContent = parseDate(dateISO).toLocaleDateString('pt-BR', { day: '2-digit', month: 'long' });
   $('dayItems').innerHTML = items.length ? items.map(item => {
     const status = effectiveStatus(item);
-    return `<div class="day-item"><div><div class="day-item-name" title="${escapeHtml(item.name)}">${escapeHtml(item.name)}</div><div class="day-item-meta">${statusLabel(status)} · aviso ${item.reminder ? `${item.reminder}d antes` : 'no dia'}${item.payDate ? ` · pago em ${formatDate(item.payDate)}` : ''}</div></div><div class="day-item-actions"><button class="day-action" data-action="toggle" data-id="${item.id}" type="button">${status === 'paid' ? 'Reabrir' : 'Marcar pago'}</button><button class="day-action delete" data-action="delete" data-id="${item.id}" type="button">Excluir</button></div></div>`;
+    return `<div class="day-item"><div><div class="day-item-name" title="${escapeHtml(item.name)}">${escapeHtml(item.name)}</div><div class="day-item-meta">${statusLabel(status)} · aviso ${item.reminder ? `${item.reminder}d antes` : 'no dia'}${item.payDate ? ` · pago em ${formatDate(item.payDate)}` : ''}</div><div class="day-item-meta">WhatsApps: ${escapeHtml(formatWhatsApps(item) || 'não informado')}</div></div><div class="day-item-actions"><button class="day-action" data-action="toggle" data-id="${item.id}" type="button">${status === 'paid' ? 'Reabrir' : 'Marcar pago'}</button><button class="day-action delete" data-action="delete" data-id="${item.id}" type="button">Excluir</button></div></div>`;
   }).join('') : '<div class="day-empty">Nenhum pagamento neste dia.</div>';
   $('dayItems').querySelectorAll('[data-action]').forEach(button => button.addEventListener('click', () => handleDayAction(button.dataset.action, button.dataset.id)));
   $('dayModalBackdrop').classList.add('open');
@@ -144,7 +147,9 @@ $('paymentForm').addEventListener('submit', async event => {
   event.preventDefault();
   const data = new FormData(event.target);
   const status = data.get('status');
-  const { error } = await supabaseClient.from('payments').insert({ owner_id: session.user.id, name: data.get('name').trim(), due_date: data.get('dueDate'), payment_date: data.get('payDate') || null, reminder_days: Number(data.get('reminder')), status });
+  const whatsapp = [data.get('whatsapp1'), data.get('whatsapp2'), data.get('whatsapp3')].map(normalizeWhatsApp);
+  if (whatsapp.some(value => value.length < 12 || value.length > 13)) { showToast('Confira os 3 números de WhatsApp com DDD.'); return; }
+  const { error } = await supabaseClient.from('payments').insert({ owner_id: session.user.id, name: data.get('name').trim(), due_date: data.get('dueDate'), payment_date: data.get('payDate') || null, reminder_days: Number(data.get('reminder')), status, whatsapp_1: whatsapp[0], whatsapp_2: whatsapp[1], whatsapp_3: whatsapp[2] });
   if (error) { showToast('Não foi possível salvar o pagamento.'); console.error(error); return; }
   closeModal();
   await loadPayments();
@@ -153,3 +158,4 @@ $('paymentForm').addEventListener('submit', async event => {
 
 supabaseClient.auth.onAuthStateChange((_event, nextSession) => setTimeout(() => showApp(nextSession), 0));
 supabaseClient.auth.getSession().then(({ data }) => showApp(data.session));
+
