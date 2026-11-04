@@ -1,4 +1,3 @@
-Attempting to perform the InitializeDefaultDrives operation on the 'FileSystem' provider failed.
 const SUPABASE_URL = 'https://gozhlkodktqvgojlrbxt.supabase.co';
 const SUPABASE_PUBLISHABLE_KEY = 'sb_publishable_Oc4AnG5G3kPxdwXK4zrILw_1LbJG3bo';
 const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY);
@@ -154,4 +153,3 @@ $('paymentForm').addEventListener('submit', async event => {
 
 supabaseClient.auth.onAuthStateChange((_event, nextSession) => setTimeout(() => showApp(nextSession), 0));
 supabaseClient.auth.getSession().then(({ data }) => showApp(data.session));
-
