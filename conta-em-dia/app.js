@@ -17,6 +17,16 @@ let authMode = 'signin';
 
 function effectiveStatus(item) { return item.status === 'paid' ? 'paid' : parseDate(item.dueDate) < today ? 'overdue' : 'pending'; }
 function statusLabel(status) { return status === 'paid' ? 'Pago' : status === 'overdue' ? 'Vencendo' : 'Pendente'; }
+function daysUntil(value) { return Math.round((parseDate(value) - today) / 86400000); }
+function dueAlert(item) {
+  if (effectiveStatus(item) === 'paid') return '';
+  const days = daysUntil(item.dueDate);
+  if (days < 0) return `Vencido há ${Math.abs(days)} dia${Math.abs(days) === 1 ? '' : 's'}`;
+  if (days === 0) return 'Vence hoje';
+  if (days === 1) return 'Vence amanhã';
+  if (days <= Number(item.reminder || 0)) return `Aviso: vence em ${days} dias`;
+  return `Vence em ${days} dias`;
+}
 function escapeHtml(value) { return String(value).replace(/[&<>'"]/g, character => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[character])); }
 function fromRow(row) { return { id: row.id, name: row.name, dueDate: row.due_date, payDate: row.payment_date || '', reminder: row.reminder_days, status: row.status, whatsapp1: row.whatsapp_1 || '', whatsapp2: row.whatsapp_2 || '', whatsapp3: row.whatsapp_3 || '' }; }
 function normalizeWhatsApp(value) { const digits = String(value || '').replace(/\D/g, ''); if (digits.length === 10 || digits.length === 11) return `55${digits}`; return digits; }
@@ -57,12 +67,24 @@ function renderCalendar() {
 function renderMonthlyDue() {
   const year = viewDate.getFullYear();
   const month = viewDate.getMonth();
+  const filter = $('dueFilter').value;
   const monthItems = payments.filter(item => {
     const date = parseDate(item.dueDate);
-    return date.getFullYear() === year && date.getMonth() === month;
+    if (date.getFullYear() !== year || date.getMonth() !== month) return false;
+    const status = effectiveStatus(item);
+    const days = daysUntil(item.dueDate);
+    if (filter === 'soon') return status !== 'paid' && days >= 0 && days <= 7;
+    if (filter === 'overdue') return status === 'overdue';
+    if (filter === 'paid') return status === 'paid';
+    return true;
   }).sort((a, b) => a.dueDate.localeCompare(b.dueDate));
   $('monthlyDueLabel').textContent = viewDate.toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' });
-  $('monthlyDueList').innerHTML = monthItems.length ? monthItems.map(item => `<button class="monthly-due-item" type="button" data-due-date="${item.dueDate}"><span class="monthly-due-date">${parseDate(item.dueDate).toLocaleDateString('pt-BR', { day: '2-digit', month: 'short' }).replace('.', '')}</span><span class="monthly-due-name">${escapeHtml(item.name)}</span><span class="monthly-due-status">${statusLabel(effectiveStatus(item))}</span></button>`).join('') : '<div class="monthly-due-empty">Nenhum vencimento cadastrado neste mês.</div>';
+  $('monthlyDueList').innerHTML = monthItems.length ? monthItems.map(item => {
+    const status = effectiveStatus(item);
+    const alert = dueAlert(item);
+    const warning = status !== 'paid' && daysUntil(item.dueDate) >= 0 && daysUntil(item.dueDate) <= Number(item.reminder || 0);
+    return `<button class="monthly-due-item ${warning ? 'warning' : ''} ${status === 'overdue' ? 'overdue' : ''}" type="button" data-due-date="${item.dueDate}"><span class="monthly-due-date">${parseDate(item.dueDate).toLocaleDateString('pt-BR', { day: '2-digit', month: 'short' }).replace('.', '')}</span><span class="monthly-due-name">${escapeHtml(item.name)}</span><span class="monthly-due-status">${statusLabel(status)}<span class="monthly-due-alert">${alert}</span></span></button>`;
+  }).join('') : '<div class="monthly-due-empty">Nenhum vencimento encontrado neste filtro.</div>';
   $('monthlyDueList').querySelectorAll('[data-due-date]').forEach(button => button.addEventListener('click', () => openDayModal(button.dataset.dueDate)));
 }
 
@@ -155,6 +177,7 @@ $('prevMonth').addEventListener('click', () => { viewDate.setMonth(viewDate.getM
 $('nextMonth').addEventListener('click', () => { viewDate.setMonth(viewDate.getMonth() + 1); renderCalendar(); renderMonthlyDue(); });
 $('navPayments').addEventListener('click', () => $('calendarTitle').scrollIntoView({ behavior: 'smooth' }));
 $('navDue').addEventListener('click', () => $('monthlyDueTitle').scrollIntoView({ behavior: 'smooth' }));
+$('dueFilter').addEventListener('change', renderMonthlyDue);
 $('paymentForm').addEventListener('submit', async event => {
   event.preventDefault();
   const data = new FormData(event.target);

@@ -79,7 +79,7 @@
     .nav-icon { width: 18px; text-align: center; opacity: .9; font-size: 16px; }
     .sidebar-bottom { margin-top: auto; padding: 22px 10px 4px; color: #89a0aa; font-size: 13px; line-height: 1.65; }
     .sidebar-bottom strong { display: block; margin-bottom: 9px; color: #d5e3e7; font-size: 14px; }
-    .sidebar-signout { display: block; margin-top: 22px; border: 0; border-top: 1px solid rgba(255,255,255,.14); padding: 17px 0 0; color: #c0cdd2; background: transparent; text-align: left; font-size: 14px; }
+    .sidebar-signout { display: block; width: 100%; margin-top: 32px; border: 0; border-top: 1px solid rgba(255,255,255,.18); padding: 22px 0 4px; color: #c0cdd2; background: transparent; text-align: left; font-size: 15px; line-height: 1.4; }
     .sidebar-signout:hover { color: #fff; }
 
     .main { width: 100%; max-width: 1400px; padding: 34px 42px 50px; margin: 0 auto; }
@@ -135,11 +135,17 @@
     .day-action.delete { color: var(--muted); }
     .day-empty { padding: 10px 0 4px; color: var(--ink-soft); font-size: 13px; text-align: center; }
     .monthly-due { margin-top: 20px; }
+    .monthly-due .panel-header { align-items: flex-start; }
+    .due-filter { border: 1px solid var(--line); border-radius: 9px; padding: 10px 12px; color: var(--ink-soft); background: #fff; font-size: 13px; }
     .monthly-due-list { display: grid; gap: 10px; padding: 18px 22px 22px; }
-    .monthly-due-item { display: flex; align-items: center; justify-content: space-between; gap: 14px; padding: 14px 16px; border: 1px solid var(--line); border-radius: 11px; background: #fbfcfc; text-align: left; }
+    .monthly-due-item { display: flex; align-items: center; justify-content: space-between; gap: 14px; padding: 15px 16px; border: 1px solid var(--line); border-radius: 11px; background: #fbfcfc; text-align: left; }
+    .monthly-due-item.warning { border-color: #f0c8a7; background: #fffaf3; }
+    .monthly-due-item.overdue { border-color: #f0b5a9; background: var(--coral-light); }
     .monthly-due-date { min-width: 54px; color: var(--blue); font-size: 15px; font-weight: 700; }
     .monthly-due-name { flex: 1; min-width: 0; color: var(--ink); font-size: 15px; font-weight: 700; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-    .monthly-due-status { color: var(--ink-soft); font-size: 13px; }
+    .monthly-due-status { min-width: 142px; color: var(--ink-soft); font-size: 13px; text-align: right; }
+    .monthly-due-alert { display: block; margin-top: 3px; color: var(--yellow); font-size: 12px; font-weight: 700; }
+    .monthly-due-item.overdue .monthly-due-alert { color: var(--coral); }
     .monthly-due-empty { padding: 22px; color: var(--ink-soft); font-size: 14px; }
 
     .tip { display: flex; gap: 12px; align-items: flex-start; margin-top: 18px; padding: 16px 18px; border: 1px dashed #b8d6db; border-radius: 12px; background: #eff8f8; color: #35636b; font-size: 12px; line-height: 1.5; }
@@ -179,8 +185,8 @@
     }
     @media (max-width: 480px) {
       .sidebar { display: none; } .stats { gap: 9px; } .stat-card { min-height: 98px; padding: 14px; } .stat-card .stat-value { font-size: 24px; }
-      .panel-header { align-items: flex-start; flex-direction: column; padding: 17px 16px 14px; } .month-nav { align-self: stretch; justify-content: space-between; }
-      .calendar-wrap { padding: 17px 10px 19px; } .weekdays { font-size: 10px; } .day { min-height: 76px; padding: 8px 5px; } .day-num { width: 27px; height: 27px; font-size: 14px; } .day-dots { margin-top: 9px; } .day-count { display: none; } .monthly-due-list { padding: 14px 12px 16px; } .monthly-due-item { padding: 12px; gap: 9px; } .monthly-due-date { min-width: 42px; font-size: 13px; } .monthly-due-name { font-size: 13px; } .monthly-due-status { font-size: 11px; }
+      .panel-header { align-items: flex-start; flex-direction: column; padding: 17px 16px 14px; } .month-nav { align-self: stretch; justify-content: space-between; } .monthly-due .panel-header { flex-direction: column; } .due-filter { width: 100%; }
+      .calendar-wrap { padding: 17px 10px 19px; } .weekdays { font-size: 10px; } .day { min-height: 76px; padding: 8px 5px; } .day-num { width: 27px; height: 27px; font-size: 14px; } .day-dots { margin-top: 9px; } .day-count { display: none; } .monthly-due-list { padding: 14px 12px 16px; } .monthly-due-item { padding: 12px; gap: 9px; } .monthly-due-date { min-width: 42px; font-size: 13px; } .monthly-due-name { font-size: 13px; } .monthly-due-status { min-width: 90px; font-size: 11px; } .monthly-due-alert { font-size: 10px; }
       .form-grid { grid-template-columns: 1fr; } .field.full { grid-column: auto; } .modal-head, .form, .day-items { padding-left: 18px; padding-right: 18px; }
     }
     @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; } }
@@ -233,7 +239,7 @@
 
       </div>
       <section class="panel monthly-due" aria-labelledby="monthlyDueTitle">
-        <div class="panel-header"><div><h2 class="panel-title" id="monthlyDueTitle">Vencimentos do mês</h2><p class="panel-caption">Contas que vencem em <span id="monthlyDueLabel"></span>.</p></div></div>
+        <div class="panel-header"><div><h2 class="panel-title" id="monthlyDueTitle">Vencimentos do mês</h2><p class="panel-caption">Veja o que está próximo de vencer e o aviso programado.</p></div><select class="due-filter" id="dueFilter" aria-label="Filtrar vencimentos"><option value="all">Todos os vencimentos</option><option value="soon">Próximos 7 dias</option><option value="overdue">Vencidos</option><option value="paid">Pagos</option></select></div>
         <div class="monthly-due-list" id="monthlyDueList"></div>
       </section>
       <div class="tip"><div class="tip-icon">i</div><div><strong>Dica:</strong> cadastre também a data em que pretende pagar. Assim você separa planejamento de vencimento e evita deixar tudo para a última hora.</div></div>
