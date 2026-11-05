@@ -176,7 +176,11 @@ $('dayModalBackdrop').addEventListener('click', event => { if (event.target === 
 $('prevMonth').addEventListener('click', () => { viewDate.setMonth(viewDate.getMonth() - 1); renderCalendar(); renderMonthlyDue(); });
 $('nextMonth').addEventListener('click', () => { viewDate.setMonth(viewDate.getMonth() + 1); renderCalendar(); renderMonthlyDue(); });
 $('navPayments').addEventListener('click', () => $('calendarTitle').scrollIntoView({ behavior: 'smooth' }));
-$('navDue').addEventListener('click', () => $('monthlyDueTitle').scrollIntoView({ behavior: 'smooth' }));
+$('navDue').addEventListener('click', () => {
+  $('dueFilter').value = 'all';
+  renderMonthlyDue();
+  $('monthlyDueTitle').scrollIntoView({ behavior: 'smooth' });
+});
 $('dueFilter').addEventListener('change', renderMonthlyDue);
 $('paymentForm').addEventListener('submit', async event => {
   event.preventDefault();
