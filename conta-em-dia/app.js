@@ -1,4 +1,3 @@
-Attempting to perform the InitializeDefaultDrives operation on the 'FileSystem' provider failed.
 const SUPABASE_URL = 'https://gozhlkodktqvgojlrbxt.supabase.co';
 const SUPABASE_PUBLISHABLE_KEY = 'sb_publishable_Oc4AnG5G3kPxdwXK4zrILw_1LbJG3bo';
 const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY);
@@ -55,7 +54,19 @@ function renderCalendar() {
   $('calendarGrid').querySelectorAll('.day.has-items').forEach(element => element.addEventListener('click', () => openDayModal(element.dataset.date)));
 }
 
-function render() { renderStats(); renderCalendar(); }
+function renderMonthlyDue() {
+  const year = viewDate.getFullYear();
+  const month = viewDate.getMonth();
+  const monthItems = payments.filter(item => {
+    const date = parseDate(item.dueDate);
+    return date.getFullYear() === year && date.getMonth() === month;
+  }).sort((a, b) => a.dueDate.localeCompare(b.dueDate));
+  $('monthlyDueLabel').textContent = viewDate.toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' });
+  $('monthlyDueList').innerHTML = monthItems.length ? monthItems.map(item => `<button class="monthly-due-item" type="button" data-due-date="${item.dueDate}"><span class="monthly-due-date">${parseDate(item.dueDate).toLocaleDateString('pt-BR', { day: '2-digit', month: 'short' }).replace('.', '')}</span><span class="monthly-due-name">${escapeHtml(item.name)}</span><span class="monthly-due-status">${statusLabel(effectiveStatus(item))}</span></button>`).join('') : '<div class="monthly-due-empty">Nenhum vencimento cadastrado neste mês.</div>';
+  $('monthlyDueList').querySelectorAll('[data-due-date]').forEach(button => button.addEventListener('click', () => openDayModal(button.dataset.dueDate)));
+}
+
+function render() { renderStats(); renderCalendar(); renderMonthlyDue(); }
 
 async function loadPayments() {
   const { data, error } = await supabaseClient.from('payments').select('id,name,due_date,payment_date,reminder_days,status').order('due_date', { ascending: true });
@@ -140,9 +151,10 @@ $('cancelModal').addEventListener('click', closeModal);
 $('modalBackdrop').addEventListener('click', event => { if (event.target === $('modalBackdrop')) closeModal(); });
 $('closeDayModal').addEventListener('click', closeDayModal);
 $('dayModalBackdrop').addEventListener('click', event => { if (event.target === $('dayModalBackdrop')) closeDayModal(); });
-$('prevMonth').addEventListener('click', () => { viewDate.setMonth(viewDate.getMonth() - 1); renderCalendar(); });
-$('nextMonth').addEventListener('click', () => { viewDate.setMonth(viewDate.getMonth() + 1); renderCalendar(); });
+$('prevMonth').addEventListener('click', () => { viewDate.setMonth(viewDate.getMonth() - 1); renderCalendar(); renderMonthlyDue(); });
+$('nextMonth').addEventListener('click', () => { viewDate.setMonth(viewDate.getMonth() + 1); renderCalendar(); renderMonthlyDue(); });
 $('navPayments').addEventListener('click', () => $('calendarTitle').scrollIntoView({ behavior: 'smooth' }));
+$('navDue').addEventListener('click', () => $('monthlyDueTitle').scrollIntoView({ behavior: 'smooth' }));
 $('paymentForm').addEventListener('submit', async event => {
   event.preventDefault();
   const data = new FormData(event.target);
@@ -158,4 +170,3 @@ $('paymentForm').addEventListener('submit', async event => {
 
 supabaseClient.auth.onAuthStateChange((_event, nextSession) => setTimeout(() => showApp(nextSession), 0));
 supabaseClient.auth.getSession().then(({ data }) => showApp(data.session));
-

@@ -73,13 +73,13 @@
     .brand span { display: block; color: #94aab5; font-size: 11px; margin-top: 2px; }
     .nav-label { padding: 0 12px 10px; color: #6f8793; font-size: 11px; letter-spacing: .08em; text-transform: uppercase; }
     .nav { display: grid; gap: 5px; }
-    .nav-btn { border: 0; border-radius: 10px; padding: 11px 12px; color: #a7bac2; background: transparent; display: flex; align-items: center; gap: 11px; text-align: left; font-size: 14px; }
+    .nav-btn { border: 0; border-radius: 10px; padding: 13px 12px; color: #a7bac2; background: transparent; display: flex; align-items: center; gap: 11px; text-align: left; font-size: 16px; }
     .nav-btn:hover, .nav-btn.active { color: #fff; background: rgba(255,255,255,.09); }
     .nav-btn.active { box-shadow: inset 3px 0 #d8efed; }
     .nav-icon { width: 18px; text-align: center; opacity: .9; font-size: 16px; }
-    .sidebar-bottom { margin-top: auto; padding: 16px 10px 2px; color: #89a0aa; font-size: 12px; line-height: 1.55; }
-    .sidebar-bottom strong { display: block; margin-bottom: 6px; color: #d5e3e7; font-size: 13px; }
-    .sidebar-signout { margin-top: 16px; border: 0; border-top: 1px solid rgba(255,255,255,.1); padding: 13px 0 0; color: #a7bac2; background: transparent; text-align: left; font-size: 12px; }
+    .sidebar-bottom { margin-top: auto; padding: 22px 10px 4px; color: #89a0aa; font-size: 13px; line-height: 1.65; }
+    .sidebar-bottom strong { display: block; margin-bottom: 9px; color: #d5e3e7; font-size: 14px; }
+    .sidebar-signout { display: block; margin-top: 22px; border: 0; border-top: 1px solid rgba(255,255,255,.14); padding: 17px 0 0; color: #c0cdd2; background: transparent; text-align: left; font-size: 14px; }
     .sidebar-signout:hover { color: #fff; }
 
     .main { width: 100%; max-width: 1400px; padding: 34px 42px 50px; margin: 0 auto; }
@@ -103,27 +103,27 @@
     .calendar-layout { max-width: 900px; }
     .panel { border: 1px solid var(--line); border-radius: var(--radius); background: var(--card); box-shadow: var(--shadow); }
     .panel-header { display: flex; align-items: center; justify-content: space-between; gap: 14px; padding: 20px 22px 16px; border-bottom: 1px solid var(--line); }
-    .panel-title { font-family: 'Space Grotesk', sans-serif; font-size: 20px; letter-spacing: -.025em; }
-    .panel-caption { margin-top: 5px; color: var(--muted); font-size: 14px; }
+    .panel-title { font-family: 'Space Grotesk', sans-serif; font-size: 22px; letter-spacing: -.025em; }
+    .panel-caption { margin-top: 6px; color: var(--muted); font-size: 15px; }
     .month-nav { display: flex; align-items: center; gap: 9px; }
-    .month-nav strong { min-width: 145px; text-align: center; font-size: 15px; }
-    .icon-btn { width: 36px; height: 36px; border: 1px solid var(--line); border-radius: 9px; color: var(--ink-soft); background: #fff; font-size: 18px; }
+    .month-nav strong { min-width: 155px; text-align: center; font-size: 16px; }
+    .icon-btn { width: 38px; height: 38px; border: 1px solid var(--line); border-radius: 9px; color: var(--ink-soft); background: #fff; font-size: 19px; }
     .icon-btn:hover { border-color: var(--blue); color: var(--blue); }
-    .calendar-wrap { padding: 20px 22px 24px; }
+    .calendar-wrap { padding: 22px 24px 26px; }
     .weekdays, .calendar-grid { display: grid; grid-template-columns: repeat(7, minmax(0,1fr)); }
-    .weekdays { margin-bottom: 10px; color: var(--muted); font-size: 12px; font-weight: 700; letter-spacing: .08em; text-align: center; text-transform: uppercase; }
+    .weekdays { margin-bottom: 11px; color: var(--muted); font-size: 13px; font-weight: 700; letter-spacing: .08em; text-align: center; text-transform: uppercase; }
     .calendar-grid { border-top: 1px solid var(--line); border-left: 1px solid var(--line); }
-    .day { position: relative; min-height: 86px; padding: 10px 9px; border-right: 1px solid var(--line); border-bottom: 1px solid var(--line); background: #fff; }
+    .day { position: relative; min-height: 98px; padding: 12px 10px; border-right: 1px solid var(--line); border-bottom: 1px solid var(--line); background: #fff; }
     .day.muted { color: #bdc7cc; background: #fbfcfc; }
     .day.today .day-num { color: #fff; background: var(--ink); }
-    .day-num { width: 28px; height: 28px; display: grid; place-items: center; border-radius: 50%; font-size: 14px; font-weight: 700; }
+    .day-num { width: 30px; height: 30px; display: grid; place-items: center; border-radius: 50%; font-size: 15px; font-weight: 700; }
     .day.has-items { cursor: pointer; }
     .day.has-items:hover { background: #f5fafb; }
-    .day-dots { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 12px; }
-    .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--blue); }
+    .day-dots { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 14px; }
+    .dot { width: 9px; height: 9px; border-radius: 50%; background: var(--blue); }
     .dot.overdue { background: var(--coral); } .dot.paid { background: var(--green); }
-    .day-count { margin-top: 6px; color: var(--ink-soft); font-size: 12px; }
-    .calendar-legend { display: flex; flex-wrap: wrap; gap: 16px; margin-top: 17px; color: var(--ink-soft); font-size: 13px; }
+    .day-count { margin-top: 7px; color: var(--ink-soft); font-size: 13px; }
+    .calendar-legend { display: flex; flex-wrap: wrap; gap: 17px; margin-top: 18px; color: var(--ink-soft); font-size: 14px; }
     .legend-item { display: flex; align-items: center; gap: 6px; }
     .legend-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--blue); } .legend-dot.warning { background: var(--coral); } .legend-dot.paid { background: var(--green); }
     .day-items { display: grid; gap: 10px; padding: 20px 24px 24px; }
@@ -134,6 +134,13 @@
     .day-action { border: 0; padding: 0; color: var(--blue); background: transparent; font-size: 11px; font-weight: 700; }
     .day-action.delete { color: var(--muted); }
     .day-empty { padding: 10px 0 4px; color: var(--ink-soft); font-size: 13px; text-align: center; }
+    .monthly-due { margin-top: 20px; }
+    .monthly-due-list { display: grid; gap: 10px; padding: 18px 22px 22px; }
+    .monthly-due-item { display: flex; align-items: center; justify-content: space-between; gap: 14px; padding: 14px 16px; border: 1px solid var(--line); border-radius: 11px; background: #fbfcfc; text-align: left; }
+    .monthly-due-date { min-width: 54px; color: var(--blue); font-size: 15px; font-weight: 700; }
+    .monthly-due-name { flex: 1; min-width: 0; color: var(--ink); font-size: 15px; font-weight: 700; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .monthly-due-status { color: var(--ink-soft); font-size: 13px; }
+    .monthly-due-empty { padding: 22px; color: var(--ink-soft); font-size: 14px; }
 
     .tip { display: flex; gap: 12px; align-items: flex-start; margin-top: 18px; padding: 16px 18px; border: 1px dashed #b8d6db; border-radius: 12px; background: #eff8f8; color: #35636b; font-size: 12px; line-height: 1.5; }
     .tip-icon { width: 22px; height: 22px; flex: 0 0 22px; display: grid; place-items: center; border-radius: 50%; color: #fff; background: #5fa4aa; font-size: 12px; font-weight: 800; }
@@ -173,7 +180,7 @@
     @media (max-width: 480px) {
       .sidebar { display: none; } .stats { gap: 9px; } .stat-card { min-height: 98px; padding: 14px; } .stat-card .stat-value { font-size: 24px; }
       .panel-header { align-items: flex-start; flex-direction: column; padding: 17px 16px 14px; } .month-nav { align-self: stretch; justify-content: space-between; }
-      .calendar-wrap { padding: 16px 10px 18px; } .weekdays { font-size: 10px; } .day { min-height: 70px; padding: 7px 5px; } .day-num { width: 25px; height: 25px; font-size: 13px; } .day-dots { margin-top: 8px; } .day-count { display: none; }
+      .calendar-wrap { padding: 17px 10px 19px; } .weekdays { font-size: 10px; } .day { min-height: 76px; padding: 8px 5px; } .day-num { width: 27px; height: 27px; font-size: 14px; } .day-dots { margin-top: 9px; } .day-count { display: none; } .monthly-due-list { padding: 14px 12px 16px; } .monthly-due-item { padding: 12px; gap: 9px; } .monthly-due-date { min-width: 42px; font-size: 13px; } .monthly-due-name { font-size: 13px; } .monthly-due-status { font-size: 11px; }
       .form-grid { grid-template-columns: 1fr; } .field.full { grid-column: auto; } .modal-head, .form, .day-items { padding-left: 18px; padding-right: 18px; }
     }
     @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; } }
@@ -202,6 +209,7 @@
       <nav class="nav" aria-label="Navegação principal">
         <button class="nav-btn active" type="button"><span class="nav-icon">▦</span><span>Visão geral</span></button>
         <button class="nav-btn" type="button" id="navPayments"><span class="nav-icon">≡</span><span>Pagamentos</span></button>
+        <button class="nav-btn" type="button" id="navDue"><span class="nav-icon">◷</span><span>Vencimentos</span></button>
       </nav>
       <div class="sidebar-bottom"><strong>Pequenos passos.</strong>Uma visão clara hoje evita a correria amanhã.<button class="sidebar-signout" id="signOut" type="button">Sair da conta</button></div>
     </aside>
@@ -224,6 +232,10 @@
         </section>
 
       </div>
+      <section class="panel monthly-due" aria-labelledby="monthlyDueTitle">
+        <div class="panel-header"><div><h2 class="panel-title" id="monthlyDueTitle">Vencimentos do mês</h2><p class="panel-caption">Contas que vencem em <span id="monthlyDueLabel"></span>.</p></div></div>
+        <div class="monthly-due-list" id="monthlyDueList"></div>
+      </section>
       <div class="tip"><div class="tip-icon">i</div><div><strong>Dica:</strong> cadastre também a data em que pretende pagar. Assim você separa planejamento de vencimento e evita deixar tudo para a última hora.</div></div>
     </main>
   </div>
