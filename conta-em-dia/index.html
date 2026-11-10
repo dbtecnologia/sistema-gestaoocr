@@ -254,10 +254,7 @@
         <div class="field"><label for="payDate">Data de pagamento</label><input id="payDate" name="payDate" type="date" /></div>
         <div class="field"><label for="reminder">Aviso de vencimento</label><select id="reminder" name="reminder"><option value="0">No dia</option><option value="1">1 dia antes</option><option value="3" selected>3 dias antes</option><option value="5">5 dias antes</option><option value="7">7 dias antes</option></select></div>
         <div class="field"><label for="paymentStatus">Status</label><select id="paymentStatus" name="status"><option value="pending">Pendente</option><option value="paid">Pago</option></select></div>
-        <div class="field full"><label>WhatsApp para receber o alerta</label><div class="field-hint">Informe os 3 números com DDD. Exemplo: (11) 99999-9999</div></div>
-        <div class="field"><label for="whatsapp1">WhatsApp 1</label><input id="whatsapp1" name="whatsapp1" type="tel" inputmode="tel" required placeholder="(11) 99999-9999" /></div>
-        <div class="field"><label for="whatsapp2">WhatsApp 2</label><input id="whatsapp2" name="whatsapp2" type="tel" inputmode="tel" required placeholder="(11) 99999-9999" /></div>
-        <div class="field"><label for="whatsapp3">WhatsApp 3</label><input id="whatsapp3" name="whatsapp3" type="tel" inputmode="tel" required placeholder="(11) 99999-9999" /></div>
+        <div class="field"><label for="amountPaid">Valor pago</label><input id="amountPaid" name="amountPaid" type="number" min="0" step="0.01" inputmode="decimal" placeholder="0,00" /></div>
       </div><div class="form-actions"><button class="secondary-btn" id="cancelModal" type="button">Cancelar</button><button class="primary-btn" type="submit">Salvar pagamento</button></div></form>
     </div>
   </div>
