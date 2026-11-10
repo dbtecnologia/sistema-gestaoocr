@@ -42,6 +42,21 @@ function renderStats() {
   $('paidCount').textContent = paid;
 }
 
+function renderMonthlyReport() {
+  const year = viewDate.getFullYear();
+  const month = viewDate.getMonth();
+  const paidItems = payments.filter(item => {
+    const paidDate = item.payDate || item.dueDate;
+    const date = parseDate(paidDate);
+    return effectiveStatus(item) === 'paid' && date.getFullYear() === year && date.getMonth() === month;
+  }).sort((a, b) => (a.payDate || a.dueDate).localeCompare(b.payDate || b.dueDate));
+  const total = paidItems.reduce((sum, item) => sum + Number(item.amountPaid || 0), 0);
+  $('monthlyReportLabel').textContent = viewDate.toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' });
+  $('monthlyPaidTotal').textContent = formatMoney(total);
+  $('monthlyPaidCount').textContent = paidItems.length;
+  $('monthlyPaidList').innerHTML = paidItems.length ? paidItems.map(item => `<div class="report-item"><span>${escapeHtml(item.name)}</span><strong>${formatMoney(item.amountPaid)}</strong></div>`).join('') : '<div class="report-empty">Nenhum pagamento registrado neste mês.</div>';
+}
+
 function renderCalendar() {
   const year = viewDate.getFullYear();
   const month = viewDate.getMonth();
@@ -90,7 +105,7 @@ function renderMonthlyDue() {
   $('monthlyDueList').querySelectorAll('[data-due-date]').forEach(button => button.addEventListener('click', () => openDayModal(button.dataset.dueDate)));
 }
 
-function render() { renderStats(); renderCalendar(); renderMonthlyDue(); }
+function render() { renderStats(); renderCalendar(); renderMonthlyDue(); renderMonthlyReport(); }
 
 async function loadPayments() {
   const { data, error } = await supabaseClient.from('payments').select('id,name,due_date,payment_date,reminder_days,status').order('due_date', { ascending: true });
@@ -175,8 +190,8 @@ $('cancelModal').addEventListener('click', closeModal);
 $('modalBackdrop').addEventListener('click', event => { if (event.target === $('modalBackdrop')) closeModal(); });
 $('closeDayModal').addEventListener('click', closeDayModal);
 $('dayModalBackdrop').addEventListener('click', event => { if (event.target === $('dayModalBackdrop')) closeDayModal(); });
-$('prevMonth').addEventListener('click', () => { viewDate.setMonth(viewDate.getMonth() - 1); renderCalendar(); renderMonthlyDue(); });
-$('nextMonth').addEventListener('click', () => { viewDate.setMonth(viewDate.getMonth() + 1); renderCalendar(); renderMonthlyDue(); });
+$('prevMonth').addEventListener('click', () => { viewDate.setMonth(viewDate.getMonth() - 1); renderCalendar(); renderMonthlyDue(); renderMonthlyReport(); });
+$('nextMonth').addEventListener('click', () => { viewDate.setMonth(viewDate.getMonth() + 1); renderCalendar(); renderMonthlyDue(); renderMonthlyReport(); });
 $('navPayments').addEventListener('click', () => $('calendarTitle').scrollIntoView({ behavior: 'smooth' }));
 $('navDue').addEventListener('click', () => {
   $('dueFilter').value = 'all';
