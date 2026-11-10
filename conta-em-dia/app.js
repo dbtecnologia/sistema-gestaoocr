@@ -108,7 +108,7 @@ function renderMonthlyDue() {
 function render() { renderStats(); renderCalendar(); renderMonthlyDue(); renderMonthlyReport(); }
 
 async function loadPayments() {
-  const { data, error } = await supabaseClient.from('payments').select('id,name,due_date,payment_date,reminder_days,status').order('due_date', { ascending: true });
+  const { data, error } = await supabaseClient.from('payments').select('id,name,due_date,payment_date,reminder_days,status,amount_paid').order('due_date', { ascending: true });
   if (error) { showToast('Não foi possível carregar os pagamentos.'); console.error(error); return; }
   payments = (data || []).map(fromRow);
   render();
