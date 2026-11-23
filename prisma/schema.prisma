@@ -1,103 +1,40 @@
-datasource db {
-  provider = "postgresql"
-  url = env("DATABASE_URL")
-}
 generator client {
   provider = "prisma-client-js"
 }
-enum StatusEncarte {
-  PENDENTE
-  PROCESSANDO
-  AGUARDANDO_VALIDACAO
-  PUBLICADO
-  ERRO
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
 }
-enum TipoPromocao {
-  NORMAL
-  APP_CLUBE
-  ATACADO_QUANTIDADE
-  CARTAO_LOJA
-}
-model Concorrente {
-  id String @id @default(uuid())
-  ownerId String
-  nome String
-  rede String?
-  cidade String
-  estado String
-  logoUrl String?
-  instagramHandle String?
-  autoScrapeEnabled Boolean @default(true)
-  frequenciaScrape String @default("DIARIO")
-  ultimoScrapeAt DateTime?
-  encartes Encarte[]
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  @@unique([id, ownerId])
-  @@unique([ownerId, instagramHandle])
-  @@index([ownerId, createdAt])
-}
-model ProdutoCatalogo {
-  id String @id @default(uuid())
-  ownerId String
-  nomePadrao String
-  marca String?
-  categoria String
-  embalagemUnidade String @default("un")
-  codigoBarras String?
-  precoAtualProprio Decimal? @db.Decimal(10, 2)
-  itensEncarte ItemEncarte[]
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  @@unique([id, ownerId])
-  @@unique([ownerId, codigoBarras])
-  @@index([ownerId, categoria])
-}
-model Encarte {
-  id String @id @default(uuid())
-  ownerId String
-  concorrenteId String
-  concorrente Concorrente @relation(fields: [concorrenteId, ownerId], references: [id, ownerId], onDelete: Restrict)
-  imagemUrl String
-  imageHash String?
-  origem String @default("UPLOAD_MANUAL")
-  postIdInstagram String?
-  dataInicio DateTime?
-  dataFim DateTime?
-  status StatusEncarte @default(PENDENTE)
-  erro String?
-  itens ItemEncarte[]
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  @@unique([id, ownerId])
-  @@unique([ownerId, imageHash])
-  @@index([ownerId, status, createdAt])
-  @@index([concorrenteId, ownerId])
-}
-model ItemEncarte {
-  id String @id @default(uuid())
-  ownerId String
-  encarteId String
-  encarte Encarte @relation(fields: [encarteId, ownerId], references: [id, ownerId], onDelete: Cascade)
-  produtoCatalogoId String?
-  produtoCatalogo ProdutoCatalogo? @relation(fields: [produtoCatalogoId, ownerId], references: [id, ownerId], onDelete: Restrict)
-  nomeExtraido String
-  marcaExtraida String?
-  embalagemUnidade String
-  categoria String
-  precoRegular Decimal? @db.Decimal(10, 2)
-  precoPromocional Decimal @db.Decimal(10, 2)
-  tipoPromocao TipoPromocao @default(NORMAL)
-  condicaoEspecial String?
-  confiancaLeitura String @default("ALTA")
-  validadoManualmente Boolean @default(false)
-  createdAt DateTime @default(now())
-  @@index([ownerId, produtoCatalogoId, createdAt])
-  @@index([encarteId, ownerId])
-}
-model Configuracao {
-  ownerId String @id
-  segredos String @default("")
-  geminiModel String @default("gemini-flash-latest")
-  updatedAt DateTime @updatedAt
-}
+
+enum UserRole { ADMIN DIRETOR GERENTE SUPERVISOR VENDEDOR ENGENHARIA INSTALACAO FINANCEIRO POS_VENDA }
+enum LeadStage { NOVO_LEAD PRIMEIRO_CONTATO QUALIFICACAO ANALISE_CONSUMO SIMULACAO PROPOSTA_ENVIADA NEGOCIACAO CONTRATO_FECHADO PERDIDO }
+enum ProjectStatus { ENGENHARIA DOCUMENTACAO APROVACAO AGENDAMENTO INSTALACAO COMISSIONAMENTO ENTREGA CONCLUIDO }
+enum AlertSeverity { INFO WARNING CRITICAL }
+enum IntegrationStatus { NOT_CONNECTED CONNECTED ERROR }
+
+model Branch { id String @id @default(cuid()); name String; code String @unique; active Boolean @default(true); users User[]; customers Customer[]; leads Lead[]; projects SolarProject[]; plants SolarPlant[]; createdAt DateTime @default(now()); updatedAt DateTime @updatedAt }
+model User { id String @id @default(cuid()); name String; email String @unique; passwordHash String?; role UserRole; active Boolean @default(true); branchId String?; branch Branch? @relation(fields: [branchId], references: [id]); tasks Task[]; leads Lead[] @relation("LeadOwner"); aiConversations AIConversation[]; auditLogs AuditLog[]; createdAt DateTime @default(now()); updatedAt DateTime @updatedAt; @@index([branchId, role]) }
+model Permission { id String @id @default(cuid()); key String @unique; description String; }
+model Customer { id String @id @default(cuid()); name String; taxId String? @unique; phone String?; whatsapp String?; email String?; city String?; state String?; address String?; type String?; source String?; branchId String; branch Branch @relation(fields: [branchId], references: [id]); leads Lead[]; projects SolarProject[]; plants SolarPlant[]; tickets SupportTicket[]; conversations Conversation[]; createdAt DateTime @default(now()); updatedAt DateTime @updatedAt; @@index([branchId, name]) }
+model Lead { id String @id @default(cuid()); customerId String?; customer Customer? @relation(fields: [customerId], references: [id]); ownerId String?; owner User? @relation("LeadOwner", fields: [ownerId], references: [id]); branchId String; branch Branch @relation(fields: [branchId], references: [id]); stage LeadStage @default(NOVO_LEAD); source String?; projectType String?; estimatedValue Decimal? @db.Decimal(14,2); lastContactAt DateTime?; lostReason String?; opportunity Opportunity?; proposals Proposal[]; createdAt DateTime @default(now()); updatedAt DateTime @updatedAt; @@index([branchId, stage]); @@index([ownerId, lastContactAt]) }
+model Opportunity { id String @id @default(cuid()); leadId String @unique; lead Lead @relation(fields: [leadId], references: [id]); title String; probability Int @default(0); amount Decimal? @db.Decimal(14,2); createdAt DateTime @default(now()); updatedAt DateTime @updatedAt }
+model Proposal { id String @id @default(cuid()); leadId String; lead Lead @relation(fields: [leadId], references: [id]); version Int @default(1); payload Json; validUntil DateTime?; sentAt DateTime?; createdAt DateTime @default(now()); updatedAt DateTime @updatedAt; @@index([leadId, sentAt]) }
+model Contract { id String @id @default(cuid()); customerId String; customer Customer @relation(fields: [customerId], references: [id]); projectId String?; amount Decimal? @db.Decimal(14,2); signedAt DateTime?; status String; createdAt DateTime @default(now()); updatedAt DateTime @updatedAt }
+model SolarProject { id String @id @default(cuid()); customerId String; customer Customer @relation(fields: [customerId], references: [id]); branchId String; branch Branch @relation(fields: [branchId], references: [id]); status ProjectStatus; projectType String; capacityKwp Decimal? @db.Decimal(10,2); scheduledAt DateTime?; completedAt DateTime?; installations Installation[]; documents Json?; createdAt DateTime @default(now()); updatedAt DateTime @updatedAt; @@index([branchId, status]) }
+model Installation { id String @id @default(cuid()); projectId String; project SolarProject @relation(fields: [projectId], references: [id]); checklist Json?; photos Json?; status String; notes String?; scheduledAt DateTime?; completedAt DateTime?; createdAt DateTime @default(now()); updatedAt DateTime @updatedAt }
+model SolarPlant { id String @id @default(cuid()); customerId String; customer Customer @relation(fields: [customerId], references: [id]); branchId String; branch Branch @relation(fields: [branchId], references: [id]); name String; address String?; installedCapacityKwp Decimal? @db.Decimal(10,2); inverterBrand String?; inverterModel String?; serialNumber String?; installedAt DateTime?; warrantyUntil DateTime?; monitoringStartedAt DateTime?; status String; inverters Inverter[]; generationRecords GenerationRecord[]; alerts Alert[]; createdAt DateTime @default(now()); updatedAt DateTime @updatedAt; @@index([branchId, status]) }
+model Inverter { id String @id @default(cuid()); plantId String; plant SolarPlant @relation(fields: [plantId], references: [id]); brand String; model String?; serialNumber String?; connectorKey String?; createdAt DateTime @default(now()) }
+model GenerationRecord { id String @id @default(cuid()); plantId String; plant SolarPlant @relation(fields: [plantId], references: [id]); recordedAt DateTime; energyKwh Decimal @db.Decimal(14,3); expectedKwh Decimal? @db.Decimal(14,3); powerKw Decimal? @db.Decimal(10,3); @@unique([plantId, recordedAt]); @@index([plantId, recordedAt]) }
+model Alert { id String @id @default(cuid()); plantId String?; plant SolarPlant? @relation(fields: [plantId], references: [id]); severity AlertSeverity; title String; detail String; resolvedAt DateTime?; createdAt DateTime @default(now()); @@index([severity, resolvedAt]) }
+model SupportTicket { id String @id @default(cuid()); customerId String; customer Customer @relation(fields: [customerId], references: [id]); subject String; status String; priority String; description String?; resolvedAt DateTime?; createdAt DateTime @default(now()); updatedAt DateTime @updatedAt; @@index([customerId, status]) }
+model Conversation { id String @id @default(cuid()); customerId String; customer Customer @relation(fields: [customerId], references: [id]); channel String; status String; assignedToId String?; messages Message[]; createdAt DateTime @default(now()); updatedAt DateTime @updatedAt }
+model Message { id String @id @default(cuid()); conversationId String; conversation Conversation @relation(fields: [conversationId], references: [id]); direction String; body String; externalId String? @unique; sentAt DateTime @default(now()) }
+model Task { id String @id @default(cuid()); title String; description String?; dueAt DateTime?; status String; assigneeId String?; assignee User? @relation(fields: [assigneeId], references: [id]); createdAt DateTime @default(now()); updatedAt DateTime @updatedAt; @@index([assigneeId, status]) }
+model Automation { id String @id @default(cuid()); name String; trigger Json; conditions Json?; actions Json; active Boolean @default(true); executions AutomationExecution[]; createdAt DateTime @default(now()); updatedAt DateTime @updatedAt }
+model AutomationExecution { id String @id @default(cuid()); automationId String; automation Automation @relation(fields: [automationId], references: [id]); status String; input Json?; output Json?; error String?; startedAt DateTime @default(now()); finishedAt DateTime?; @@index([automationId, startedAt]) }
+model FinancialTransaction { id String @id @default(cuid()); branchId String; kind String; status String; amount Decimal @db.Decimal(14,2); dueAt DateTime?; paidAt DateTime?; description String?; createdAt DateTime @default(now()); @@index([branchId, kind, status]) }
+model Integration { id String @id @default(cuid()); key String @unique; name String; status IntegrationStatus @default(NOT_CONNECTED); config Json?; lastSyncAt DateTime?; lastError String?; createdAt DateTime @default(now()); updatedAt DateTime @updatedAt }
+model AIConversation { id String @id @default(cuid()); userId String; user User @relation(fields: [userId], references: [id]); provider String?; model String?; messages Json; actions AIActions[]; createdAt DateTime @default(now()); updatedAt DateTime @updatedAt }
+model AIActions { id String @id @default(cuid()); conversationId String; conversation AIConversation @relation(fields: [conversationId], references: [id]); tool String; input Json; output Json?; confirmationRequired Boolean @default(true); confirmedAt DateTime?; createdAt DateTime @default(now()) }
+model AuditLog { id String @id @default(cuid()); userId String?; user User? @relation(fields: [userId], references: [id]); action String; entity String; entityId String?; metadata Json?; createdAt DateTime @default(now()); @@index([entity, entityId, createdAt]) }

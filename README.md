@@ -1,28 +1,37 @@
-# Mercado Radar
+# Invest Solar Intelligence
 
-Plataforma SaaS de inteligência competitiva de preços para supermercados.
+Fundação da plataforma operacional da Invest Solar. Esta primeira fase entrega um dashboard executivo executável, API modular, base de dados preparada para PostgreSQL/Prisma, RBAC e escopo por unidade.
 
-## Começar
+## Executar localmente
 
-```bash
-cp .env.example .env
-pnpm install
-pnpm prisma generate
-pnpm dev
+O ambiente atual não possui npm instalado, mas a aplicação usa apenas APIs nativas do Node para a primeira fase.
+
+```powershell
+node src/server.mjs
 ```
 
-Configure `DATABASE_URL` com um PostgreSQL local ou um projeto Supabase. Para OCR configure `GEMINI_API_KEY`. O adaptador de coleta em `lib/scraper.ts` está isolado para receber um Actor do Apify ou um crawler Playwright.
+Abra `http://localhost:3000`.
 
-## Rotas
+Para validar a fundação:
 
-- `/` visão geral operacional
-- `/dashboard/concorrentes` gestão de perfis e frequência
-- `/dashboard/encartes/demo/validate` validação split-screen
-- `/dashboard/benchmarking` matriz de preços
-- `/dashboard/reports` analytics e exportações
-- `POST /api/scrape/:concorrenteId` dispara varredura
-- `PATCH /api/encartes/:id/validate` publica um encarte validado
+```powershell
+node --test
+```
 
-## Deploy
+## O que já está funcionando
 
-O projeto está pronto para GitHub + Vercel. No Vercel, defina `DATABASE_URL`, `GEMINI_API_KEY` e `APIFY_API_TOKEN`; use Supabase como PostgreSQL e execute `prisma migrate deploy` no pipeline de produção.
+- Dashboard executivo responsivo com filtros de período, unidade, vendedor e tipo de projeto.
+- API `GET /api/health` e `GET /api/dashboard`.
+- Filtragem de KPIs, pipeline, alertas e atividades no servidor.
+- Camada explícita de dados demonstrativos para desenvolvimento, identificada na API e na interface.
+- RBAC inicial e escopo multiunidade no módulo `src/lib/rbac.mjs`.
+- Schema relacional Prisma e migration SQL inicial.
+- Documentação de arquitetura, decisões e próximos passos em `docs/architecture.md`.
+
+## Limites desta fase
+
+Autenticação real, persistência PostgreSQL, integrações externas, IA com tool calling e módulos operacionais ainda não estão conectados. A UI não apresenta dados demonstrativos como produção: a origem aparece sempre como “Ambiente de desenvolvimento”.
+
+## Direção técnica
+
+O servidor atual é um adaptador HTTP pequeno para permitir execução imediata sem instalar dependências. Na próxima etapa ele deve ser movido para uma API TypeScript/Next.js ou serviço Node modular, mantendo os contratos HTTP e o schema Prisma já definidos.

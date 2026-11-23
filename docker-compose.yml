@@ -1,0 +1,14 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: invest_solar
+      POSTGRES_USER: invest_solar
+      POSTGRES_PASSWORD: change-me
+    ports:
+      - "5432:5432"
+    volumes:
+      - invest_solar_pgdata:/var/lib/postgresql/data
+
+volumes:
+  invest_solar_pgdata:
